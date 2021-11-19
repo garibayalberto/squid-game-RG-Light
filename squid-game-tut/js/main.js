@@ -13,7 +13,7 @@ scene.add( light );
 const start_position = 3;
 const end_position = -start_position;
 const text = document.querySelector(".text");
-const TIMIT_LIMIT = 10;
+const TIME_LIMIT = 10;
 let gameStat = "loading";
 let isLookingBackward = true;
 
@@ -45,12 +45,12 @@ class Doll {
 
     lookBackward(){
         gsap.to(this.doll.rotation, {y: -3.15, duration: .45})
-        setTimeout(() => isLookingBackward = true, 450);
+        setTimeout(() => isLookingBackward = true, 150);
     }
 
     lookForward(){
         gsap.to(this.doll.rotation, {y: 0, duration: .45})
-        setTimeout(() => isLookingBackward = false, 150);
+        setTimeout(() => isLookingBackward = false, 450);
     }
 
     async start(){
@@ -95,10 +95,12 @@ class Player{
 
     check(){
         if(this.playerInfo.velocity > 0 && !isLookingBackward){
-            alert("You Lose!");
+            text.innerText = "You Lose!";
+            gameStat = "over";
         }
-        if(this.playerInfo.positionX < end_position){
-            alert("You win!");
+        if(this.playerInfo.positionX < end_position + .4){
+            text.innerText = "You Win!";
+            gameStat = "over";
         }
     } 
 
@@ -128,13 +130,20 @@ function startGame() {
     gameStat = "started";
     let progressBar = createCube({w: 5, h: .1, d: 1}, 0);
     progressBar.position.y = 3.35;
-    gsap.to(progressBar.scale, {x: 0, duration: TIMIT_LIMIT, ease: "none"});
+    gsap.to(progressBar.scale, {x: 0, duration: TIME_LIMIT, ease: "none"});
     doll.start();
+    setTimeout(() => {
+        if(gameStat != "over") {
+            text.innerText = "Out of Time!";
+            gameStat = "over";
+        }
+    }, TIME_LIMIT *1000);
 }
 
 init();
 
 function animate() {
+    if(gameStat == "over") return;
 	renderer.render( scene, camera );
     requestAnimationFrame( animate );
     player.update();
